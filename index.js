@@ -702,10 +702,10 @@ module.exports = function(PouchToUse) {
 
       if (req.query.feed === 'continuous') {
         req.query.live = req.query.continuous = true;
-        req.db.changes(req.query).on('change', function (change) {
+        req.db.changes(req.query).then( function (change) {
           written = true;
           res.write(JSON.stringify(change) + '\n');
-        }).on('error', function (err) {
+        }).catch(function (err) {
           if (!written) {
             sendError(res, err);
           } else {
@@ -728,13 +728,13 @@ module.exports = function(PouchToUse) {
             cleanup();
           } else { // do the longpolling
             req.query.live = req.query.continuous = true;
-            var changes = req.db.changes(req.query).on('change', function (change) {
+            var changes = req.db.changes(req.query).then(function (change) {
               written = true;
               res.write(JSON.stringify({results: [change], last_seq: change.seq}) + '\n');
               res.end();
               changes.cancel();
               cleanup();
-            }).on('error', function (err) {
+            }).catch(function (err) {
               if (!written) {
                 sendError(res, err);
               }

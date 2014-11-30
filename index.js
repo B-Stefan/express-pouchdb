@@ -717,7 +717,7 @@ module.exports = function(PouchToUse) {
 
         // first check if there are >0. if so, return them immediately
         req.query.live = req.query.continuous = false;
-        req.db.changes(req.query).on('complete', function (complete) {
+        req.db.changes(req.query).then(function (complete) {
           if (!complete.results) {
             // canceled, ignore
             cleanup();
@@ -741,7 +741,7 @@ module.exports = function(PouchToUse) {
               cleanup();
             });
           }
-        }).on('error', function (err) {
+        }).catch(function (err) {
           if (!written) {
             sendError(res, err);
           }
